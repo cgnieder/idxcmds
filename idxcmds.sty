@@ -61,7 +61,7 @@
 \newcommand\newidxcmd[3][\index]{%
   \@idxcmds@csdef{#2@base}##1{#3}%
   \@idxcmds@csdef{#2@idx}##1##2{%
-    \ifstrempty{##1}
+    \ifblank{##1}
       {#1{##2\@idxcmds@sortsep\@idxcmds@csuse{#2@base}{##2}\@idxcmds@csuse{#2@idx@app}}}
       {#1{##1\@idxcmds@sortsep\@idxcmds@csuse{#2@base}{##2}\@idxcmds@csuse{#2@idx@app}}}}%
   \@idxcmds@csdef{#2@star}##1{\@idxcmds@csuse{#2@base}{##1}}%
@@ -75,6 +75,8 @@
     \@ifstar
       {\@idxcmds@csuse{#2@star}}
       {\@idxcmds@csuse{#2@nostar}}}%
+  \expandafter\newrobustcmd\csname\@idxcmds@stripbs#2idx\endcsname[2][]{%
+    \@idxcmds@csuse{#2@idx}{##1}{##2}}%
   \@ifnextchar[%
     {\@idxcmds@appdef{#2}}
     {\@idxcmds@appdef{#2}[]}%
@@ -85,7 +87,7 @@
 \newcommand\newsubmainidxcmd[3][\index]{%
   \@idxcmds@csdef{#2@base}##1{#3}%
   \@idxcmds@csdef{#2@idx}##1##2##3{%
-    \ifstrempty{##1}
+    \ifblank{##1}
       {%
         #1{%
           ##3\@idxcmds@subsep##2\@idxcmds@sortsep
@@ -108,6 +110,8 @@
     \@ifstar
       {\@idxcmds@csuse{#2@star}}
       {\@idxcmds@csuse{#2@nostar}}}%
+  \expandafter\newrobustcmd\csname\@idxcmds@stripbs#2idx\endcsname[3][]{%
+    \@idxcmds@csuse{#2@idx}{##1}{##2}{##3}}%
   \@ifnextchar[%
     {\@idxcmds@appdef{#2}}
     {\@idxcmds@appdef{#2}[]}%
@@ -138,7 +142,7 @@
   \if@idxcmds@sub@star
     \@idxcmds@extract@main#2#3%
     \@idxcmds@csdef{#2@idx}##1##2{%
-      \ifstrempty{##1}
+      \ifblank{##1}
         {%
           #1{%
             \@idxcmds@csuse{#2@main@sort}\@idxcmds@sortsep
@@ -156,7 +160,7 @@
         }}%
   \else
     \@idxcmds@csdef{#2@idx}##1##2{%
-      \ifstrempty{##1}
+      \ifblank{##1}
         {%
           #1{%
             #3%
@@ -182,6 +186,8 @@
     \@ifstar
       {\@idxcmds@csuse{#2@star}}
       {\@idxcmds@csuse{#2@nostar}}}%
+  \expandafter\newrobustcmd\csname\@idxcmds@stripbs#2idx\endcsname[2][]{%
+    \@idxcmds@csuse{#2@idx}{##1}{##2}}%
   \@ifnextchar[%
     {\@idxcmds@appdef{#2}}
     {\@idxcmds@appdef{#2}[]}%
