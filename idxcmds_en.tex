@@ -1,0 +1,150 @@
+\documentclass{cnpkgdoc}
+\docsetup{
+  pkg = idxcmds ,
+  language = en ,
+  code-box = {
+    backgroundcolor  = gray!7!white ,
+    skipbelow        = .6\baselineskip plus .5ex minus .5ex ,
+    skipabove        = .6\baselineskip plus .5ex minus .5ex ,
+    roundcorner      = 3pt ,
+  } ,
+  gobble   = 1
+}
+\addcmds{acr,environ,file,hsnbg,KOMAScript,name,test}
+
+\cnpkgusecolorscheme{friendly}
+\usepackage{fnpct}
+
+\usepackage{imakeidx}
+\makeindex[intoc]
+\makeindex[name=examples,title=Example Index,intoc]
+
+\newcommand*\Default[1]{%
+  \hfill\llap
+    {%
+      \ifblank{#1}%
+        {(initially~empty)}%
+        {Default:~\code{#1}}%
+    }%
+  \newline
+}
+
+\newidxcmd\acr{\textsc{#1}}
+\newidxcmd[{\index[examples]}]\environ{\texttt{#1}}[ (Environment)]
+\newidxcmd\name{\textsf{#1}}
+\newsubmainidxcmd\file{\textsf{#1}}
+\newsubidxcmd\test{Test}{\textcolor{red}{#1}}
+\newsubidxcmd*\hsnbg{\name[Heisenberg]{Werner Heisenberg}}{#1}
+
+\begin{document}
+
+\section{Licence and Requirements}
+Permission is granted to copy, distribute and/or modify this software under the
+terms of the \LaTeX{} Project Public License, version 1.3 or later
+(\url{http://www.latex-project.org/lppl.txt}). The package has the status
+``maintained.''
+
+\idxcmds loads and needs the the package \paket{etoolbox}.
+
+\section{Usage}
+\subsection{Available Commands}
+\idxcmds provides these commands:
+\begin{beschreibung}
+ \Befehl{newidxcmd}[<index cs>]{\cmd{cmd}}\ma{<formatting specs>}\oa{<app to idx entry>}\newline
+   Defines a command \cmd{cmd}. See next section for a description. Default for
+   \code{<index cs>} is \cmd{index}.
+ \Befehl{newsubmainidxcmd}[<index cs>]{\cmd{cmd}}\ma{<formatting specs>}\oa{<app to i. e.>}\newline
+   Defines a command \cmd{cmd}. See next section for a description. Default for
+   \code{<index cs>} is \cmd{index}.
+ \Befehl{newsubidxcmd}*[<index cs>]{\cmd{cmd}}\ma{<main entry>}\ma{<formatting specs>}\oa{<app to i. e.>}\newline
+   Defines a command \cmd{cmd}. See next section for a description. Default for
+   \code{<index cs>} is \cmd{index}.
+\end{beschreibung}
+
+\subsection{Command Usage}
+\cmd{newidxcmd} will define a new command with the following syntax:
+\begin{beschreibung}
+ \befehl{cmd}*{<text>} format \code{<text>} according to specifications, no
+   index entry.
+ \befehl{cmd}{<text>} format \code{<text>} according to specifications, add
+   formatted index entry, sorted according to \code{<text>}.
+ \befehl{cmd}[<srt idx>]{<text>} format \code{<text>} according to specifications,
+   add formatted index entry, sorted according to \code{<srt idx>}.
+\end{beschreibung}
+
+Let's see an example:
+\begin{beispiel}
+ % preamble:
+ % \newidxcmd\acr{\textsc{#1}}
+ % \newidxcmd[{\index[examples]}]\environ{\texttt{#1}}[ (Environment)]
+ % \newidxcmd\name{\textsf{#1}}
+ \acr{cd}, \acr{id}
+ 
+ \environ{center}, \environ{flushleft}
+
+ \name*{Albert Einstein}, \name[Heisenberg]{Werner Heisenberg}
+\end{beispiel}
+You will find these examples in the index or the examples index, resp. The second
+set of examples shows the purpose of the first optional argument: if you have
+several indexes -- like this documentation has for demonstration purposes --
+you might need to specify the index command used. This document uses \paket{imakeidx}
+for this purpose.
+
+\cmd{newsubmainidxcmd} will define a new command with the following syntax:
+\begin{beschreibung}
+ \befehl{cmd}*{<text>} format \code{<text>} according to specifications, no
+   index entry.
+ \Befehl{cmd}{<text>}\ma{<main entry>} \cnpkgdocarrow{} format \code{<text>}
+   according to specifications, add formatted index entry, sorted according to
+   \code{<text>}.
+ \Befehl{cmd}[<srt idx>]{<text>}\ma{<main entry>} \cnpkgdocarrow{} format
+   \code{<text>} according to specifications, add formatted index entry, sorted
+   according to \code{<srt idx>}.
+\end{beschreibung}
+
+\begin{beispiel}
+ % preamble
+ % \newsubmainidxcmd\file{\textsf{#1}}
+ \file{article}{classes} is a standard \LaTeX{} class.
+ \file{scrartcl}{KOMA-Script@\KOMAScript} is part of the \KOMAScript{} bundle.
+ \file*{test} is an dummy.
+\end{beispiel}
+
+\cmd{newsubidxcmd} will define a new command with the same syntax as \cmd{newidxcmd}
+does. However, \cmd{newsubidxcmd} has an additional argument that specifies the
+main entry this group of sub entries belongs to. In the unstarred variant this
+argument can be some arbitrary main entry. In the starred variant it demands
+a command plus argument defined by \cmd{newidxcmd} as argument.
+
+\begin{beispiel}
+ % preamble:
+ % \newsubidxcmd\test{Test}{\textcolor{red}{#1}}
+ % \newsubidxcmd*\hsnbg{\name[Heisenberg]{Werner Heisenberg}}{#1}
+ \name[Heisenberg]{Werner Heisenberg} was born in \hsnbg{W\"urzburg, Germany}.
+ And this is a \test{test}.
+\end{beispiel}
+
+The commands defined this way are robust but their formatting is not grouped. So
+keep this in mind when you use \cmd*{bfseries} or something in a definition.
+
+Of course these commands cannot cover all possible use cases but this is not the
+intention, anyway.
+
+\subsection{Options}
+\idxcmds has these option:
+\begin{beschreibung}
+ \Option{sortsep}{<symbol>}\Default{@}
+   set makeindex symbol to separate the index into sorting and typesetting part
+   as specified in the index style file.
+ \Option{subsep}{<symbol>}\Default{!}
+   set makeindex symbol to add a sub entry as specified in the index style file.
+\end{beschreibung}
+
+
+\begingroup
+\printindex
+\def\clearpage{\vskip\baselineskip}
+\printindex[examples]
+\endgroup
+
+\end{document}
