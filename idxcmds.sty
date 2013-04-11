@@ -8,7 +8,7 @@
 % Web:    https://bitbucket.org/cgnieder/idxcmds/
 % E-Mail: contact@mychemistry.eu
 % --------------------------------------------------------------------------
-% Copyright 2012 Clemens Niederberger
+% Copyright 2012-2013 Clemens Niederberger
 % 
 % This work may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License, either version 1.3
@@ -30,53 +30,81 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\def\@idxcmds@date{2012/11/02}
-\def\@idxcmds@version{v0.1}
+\def\@idxcmds@date{2013/04/11}
+\def\@idxcmds@version{v0.1a}
 
-\ProvidesPackage{idxcmds}[\@idxcmds@date\space \@idxcmds@version\space create commands for adding formatted index entries]
+\ProvidesPackage{idxcmds}[\@idxcmds@date\space \@idxcmds@version\space
+  create commands for adding formatted index entries (CN)]
 \RequirePackage{etoolbox,pgfopts}
 
+% --------------------------------------------------------------------------
+% package options:
 \def\@idxcmds@sortsep{@}
 \def\@idxcmds@subsep{!}
 \pgfkeys{
   idxcmds/.cd,
-    sortsep/.code = \def\@idxcmds@sortsep{#1} ,
-    subsep/.code  = \def\@idxcmds@subsep{#1}
+    sort-sep/.code = \def\@idxcmds@sortsep{#1} ,
+    sub-sep/.code  = \def\@idxcmds@subsep{#1}
 }
 \ProcessPgfOptions*
 
+% --------------------------------------------------------------------------
+% a few helpers:
 \def\@idxcmds@stripbs{\expandafter\@gobble\string}
 \def\@idxcmds@csdef#1{\csdef{\@idxcmds@stripbs#1}}
 \def\@idxcmds@csedef#1{\csdef{\@idxcmds@stripbs#1}}
 \def\@idxcmds@csuse#1{\csuse{\@idxcmds@stripbs#1}}
 \def\@idxcmds@appdef#1[#2]{\@idxcmds@csdef{#1@idx@app}{#2}}
+\def\@idxcmds@newcommand{%
+  \@ifstar
+    {\@idxcmds@newcommand@star}
+    {\@idxcmds@newcommand@nostar}%
+}
+\def\@idxcmds@newcommand@nostar#1{%
+  \expandafter\newrobustcmd\csname\@idxcmds@stripbs#1\endcsname}
+\def\@idxcmds@newcommand@star#1{%
+  \expandafter\newrobustcmd\expandafter*\csname\@idxcmds@stripbs#1\endcsname}
 
+% --------------------------------------------------------------------------
+% \newidxcmd[<index cmd>]{<cs>}{<formatting specs>}[<app to idx entry>]
 % new commands will have the syntax
 %   \cmd*{<text>}            => no index entry
 %   \cmd{<text>}             => index entry
 %   \cmd[<sort idx>]{<text>} => alt. sort index
 %
 
-% \newidxcmd[<index cmd>]{<cs>}{<formatting specs>}[<app to idx entry>]
-\newcommand\newidxcmd[3][\index]{%
+\newrobustcmd\newidxcmd[3][\index]{%
   \@idxcmds@csdef{#2@base}##1{#3}%
   \@idxcmds@csdef{#2@idx}##1##2{%
     \ifblank{##1}
-      {#1{##2\@idxcmds@sortsep\@idxcmds@csuse{#2@base}{##2}\@idxcmds@csuse{#2@idx@app}}}
-      {#1{##1\@idxcmds@sortsep\@idxcmds@csuse{#2@base}{##2}\@idxcmds@csuse{#2@idx@app}}}}%
+      {%
+        #1{%
+          ##2\@idxcmds@sortsep
+          \@idxcmds@csuse{#2@base}{##2}%
+          \@idxcmds@csuse{#2@idx@app}
+        }%
+      }
+      {%
+        #1{%
+          ##1\@idxcmds@sortsep
+          \@idxcmds@csuse{#2@base}{##2}%
+          \@idxcmds@csuse{#2@idx@app}
+        }%
+      }%
+    }%
   \@idxcmds@csdef{#2@star}##1{\@idxcmds@csuse{#2@base}{##1}}%
   \@idxcmds@csdef{#2@nostar}{%
     \@ifnextchar[%
       {\@idxcmds@csuse{#2@nostar@opt}}
       {\@idxcmds@csuse{#2@nostar@opt}[]}}%
   \@idxcmds@csdef{#2@nostar@opt}[##1]##2{%
-    \@idxcmds@csuse{#2@base}{##2}\@idxcmds@csuse{#2@idx}{##1}{##2}}%
+    \@idxcmds@csuse{#2@base}{##2}%
+    \@idxcmds@csuse{#2@idx}{##1}{##2}}%
   \newrobustcmd*#2{%
     \@ifstar
       {\@idxcmds@csuse{#2@star}}
       {\@idxcmds@csuse{#2@nostar}}}%
-  \expandafter\newrobustcmd\csname\@idxcmds@stripbs#2idx\endcsname[2][]{%
-    \@idxcmds@csuse{#2@idx}{##1}{##2}}%
+  \@idxcmds@newcommand*{#2idx}[2][]{\@idxcmds@csuse{#2@idx}{##1}{##2}}%
   \@ifnextchar[%
     {\@idxcmds@appdef{#2}}
     {\@idxcmds@appdef{#2}[]}%
@@ -84,19 +112,21 @@
 
 % ---------------------------------------------------------------------------
 % \newsubmainidxcmd[<index cmd>]{<cs>}{<formatting specs>}[<app to idx entry>]
-\newcommand\newsubmainidxcmd[3][\index]{%
+\newrobustcmd\newsubmainidxcmd[3][\index]{%
   \@idxcmds@csdef{#2@base}##1{#3}%
   \@idxcmds@csdef{#2@idx}##1##2##3{%
     \ifblank{##1}
       {%
         #1{%
           ##3\@idxcmds@subsep##2\@idxcmds@sortsep
-          \@idxcmds@csuse{#2@base}{##2}\@idxcmds@csuse{#2@idx@app}%
+          \@idxcmds@csuse{#2@base}{##2}%
+          \@idxcmds@csuse{#2@idx@app}%
         }%
       }{%
         #1{%
           ##3\@idxcmds@subsep##1\@idxcmds@sortsep
-          \@idxcmds@csuse{#2@base}{##2}\@idxcmds@csuse{#2@idx@app}}%
+          \@idxcmds@csuse{#2@base}{##2}%
+          \@idxcmds@csuse{#2@idx@app}}%
         }%
       }%
   \@idxcmds@csdef{#2@star}##1{\@idxcmds@csuse{#2@base}{##1}}%
@@ -110,7 +140,7 @@
     \@ifstar
       {\@idxcmds@csuse{#2@star}}
       {\@idxcmds@csuse{#2@nostar}}}%
-  \expandafter\newrobustcmd\csname\@idxcmds@stripbs#2idx\endcsname[3][]{%
+  \@idxcmds@newcommand*{#2idx}[3][]{%
     \@idxcmds@csuse{#2@idx}{##1}{##2}{##3}}%
   \@ifnextchar[%
     {\@idxcmds@appdef{#2}}
@@ -118,6 +148,8 @@
 }
 
 % ---------------------------------------------------------------------------
+% \newsubidxcmd[<index cmd>]{<cs>}{<idx cmd>}{<formatting specs>}[<app to idx entry>]
+% \newsubidxcmd*[<index cmd>]{<cs>}{<main entry>}{<formatting specs>}[<app to idx entry>]
 \newif\if@idxcmds@sub@star
 
 % get main if starred
@@ -131,13 +163,11 @@
     {\@idxcmds@csdef{#1@main@sort}{#4}}
     {\@idxcmds@csdef{#1@main@sort}{#3}}}
 
-% \newsubidxcmd[<index cmd>]{<cs>}{<idx cmd>}{<formatting specs>}[<app to idx entry>]
-% \newsubidxcmd*[<index cmd>]{<cs>}{<main entry>}{<formatting specs>}[<app to idx entry>]
 \newcommand*\newsubidxcmd{%
   \@ifstar
     {\@idxcmds@sub@startrue\@idxcmds@subidx}
     {\@idxcmds@sub@starfalse\@idxcmds@subidx}}
-\newcommand\@idxcmds@subidx[4][\index]{%
+\newrobustcmd\@idxcmds@subidx[4][\index]{%
   \@idxcmds@csdef{#2@base}##1{#4}%
   \if@idxcmds@sub@star
     \@idxcmds@extract@main#2#3%
@@ -148,14 +178,16 @@
             \@idxcmds@csuse{#2@main@sort}\@idxcmds@sortsep
             \@idxcmds@csuse{#2@main}%
             \@idxcmds@subsep##2\@idxcmds@sortsep
-            \@idxcmds@csuse{#2@base}{##2}\@idxcmds@csuse{#2@idx@app}%
+            \@idxcmds@csuse{#2@base}{##2}%
+            \@idxcmds@csuse{#2@idx@app}%
           }%
         }{%
           #1{%
             \@idxcmds@csuse{#2@main@sort}\@idxcmds@sortsep
             \@idxcmds@csuse{#2@main}%
             \@idxcmds@subsep##1\@idxcmds@sortsep
-            \@idxcmds@csuse{#2@base}{##2}\@idxcmds@csuse{#2@idx@app}%
+            \@idxcmds@csuse{#2@base}{##2}%
+            \@idxcmds@csuse{#2@idx@app}%
           }%
         }}%
   \else
@@ -165,13 +197,15 @@
           #1{%
             #3%
             \@idxcmds@subsep##2\@idxcmds@sortsep
-            \@idxcmds@csuse{#2@base}{##2}\@idxcmds@csuse{#2@idx@app}%
+            \@idxcmds@csuse{#2@base}{##2}%
+            \@idxcmds@csuse{#2@idx@app}%
           }%
         }{%
           #1{%
             #3%
             \@idxcmds@subsep##1\@idxcmds@sortsep
-            \@idxcmds@csuse{#2@base}{##2}\@idxcmds@csuse{#2@idx@app}%
+            \@idxcmds@csuse{#2@base}{##2}%
+            \@idxcmds@csuse{#2@idx@app}%
           }%
         }}%
   \fi
@@ -186,15 +220,15 @@
     \@ifstar
       {\@idxcmds@csuse{#2@star}}
       {\@idxcmds@csuse{#2@nostar}}}%
-  \expandafter\newrobustcmd\csname\@idxcmds@stripbs#2idx\endcsname[2][]{%
+  \@idxcmds@newcommand*{#2idx}[2][]{%
     \@idxcmds@csuse{#2@idx}{##1}{##2}}%
   \@ifnextchar[%
     {\@idxcmds@appdef{#2}}
     {\@idxcmds@appdef{#2}[]}%
 }
 
-\@onlypreamble\newidxcmd
-\@onlypreamble\newsubmainidxcmd
-\@onlypreamble\newsubidxcmd
-
 \endinput
+% --------------------------------------------------------------------------
+% HISTORY:
+2012/11/02 v0.1  - first working version
+2013/04/11 v0.1a - made \newidxcmd, \newsubmainidxcmd and \newsubidxcmd robust
