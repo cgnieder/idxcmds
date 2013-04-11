@@ -32,10 +32,27 @@
 % --------------------------------------------------------------------------
 \def\@idxcmds@date{2013/04/11}
 \def\@idxcmds@version{v0.1a}
+\def\@idxcmds@description{create commands for adding formatted index entries}
 
 \ProvidesPackage{idxcmds}[\@idxcmds@date\space \@idxcmds@version\space
-  create commands for adding formatted index entries (CN)]
+  \@idxcmds@description\space (CN)]
 \RequirePackage{etoolbox,pgfopts}
+
+% --------------------------------------------------------------------------
+% message handling:
+\def\@idxcmds@create@message#1{%
+  \ifstrequal{#1}{Error}
+    {%
+      \lowercase{\csdef{@idxcmds@#1}}##1##2{%
+        \csuse{Package#1}{bohr}{##1}{##2}}%
+    }{%
+      \lowercase{\csdef{@idxcmds@#1}}##1{%
+        \csuse{Package#1}{bohr}{##1}}%
+    }}
+\@idxcmds@create@message{Error}
+\@idxcmds@create@message{Warning}
+\@idxcmds@create@message{WarningNoLine}
+\@idxcmds@create@message{Info}
 
 % --------------------------------------------------------------------------
 % package options:
@@ -52,7 +69,6 @@
 % a few helpers:
 \def\@idxcmds@stripbs{\expandafter\@gobble\string}
 \def\@idxcmds@csdef#1{\csdef{\@idxcmds@stripbs#1}}
-\def\@idxcmds@csedef#1{\csdef{\@idxcmds@stripbs#1}}
 \def\@idxcmds@csuse#1{\csuse{\@idxcmds@stripbs#1}}
 \def\@idxcmds@appdef#1[#2]{\@idxcmds@csdef{#1@idx@app}{#2}}
 \def\@idxcmds@newcommand{%

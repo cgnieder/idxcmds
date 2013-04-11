@@ -174,22 +174,41 @@ useful for others, and here we are.
 \subsection{Available Commands}\secidx[Available Commands]{Usage}
 \idxcmds provides these commands:
 \begin{beschreibung}
- \Befehl{newidxcmd}[<index cs>]{\cmd{cmd}}\ma{<formatting specs>}\oa{<app to idx entry>}\newline
-   Defines a command \cmd{cmd}. See next section for a description. Default for
+ \Befehl{newidxcmd}[<index cs>]{\cmd*{cmd}}\ma{<formatting specs>}\oa{<app to idx entry>}\newline
+   Defines a command \cmd*{cmd} that formats its argument according to
+   \code{<formatting specs>} and creates an index entry with \code{<index cs>}
+   that gets \code{<app to idx entry>} appended. Also defines a command \cmd*{cmdidx}
+   that allows to only create an index entry. See section~\ref{ssec:command:usage:newidxcmd}
+   for examples and further description of its functionality. Default for
    \code{<index cs>} is \cmd{index}.
- \Befehl{newsubmainidxcmd}[<index cs>]{\cmd{cmd}}\ma{<formatting specs>}\oa{<app to i.e.>}\newline
-   Defines a command \cmd{cmd}. See next section for a description. Default for
-   \code{<index cs>} is \cmd{index}.
- \Befehl{newsubidxcmd}*[<index cs>]{\cmd{cmd}}\ma{<main entry>}\ma{<formatting specs>}\oa{<app to i.e.>}\newline
-   Defines a command \cmd{cmd}. See next section for a description. Default for
+ \Befehl{newsubidxcmd}*[<index cs>]{\cmd*{cmd}}\ma{<main entry>}\ma{<form.\@ specs>}\oa{<app to i.\@ e.>}\newline
+   Defines a command \cmd*{cmd} that formats its argument according to
+   \code{<form.\@ specs>} and creates an index sub-entry to \code{<main entry>}
+   with \code{<index cs>} that gets \code{<app to i.\@ e.>} appended. Also
+   defines a command \cmd*{cmdidx} that allows to only create an index entry.
+   See section~\ref{ssec:command:usage:newsubidxcmd} for further description of
+   its functionality. Default for \code{<index cs>} is \cmd{index}.
+ \Befehl{newsubmainidxcmd}[<index cs>]{\cmd*{cmd}}\ma{<form.\@ specs>}\oa{<app to i.\@ e.>}\newline
+   Defines a command \cmd*{cmd} that formats its argument according to
+   \code{<form.\@ specs>} and creates an index sub-entry to a main entry with
+   \code{<index cs>} that gets \code{<app to i.\@ e.>} appended. Also defines a
+   command \cmd*{cmdidx} that allows to only create an index entry. The main entry
+   is specified at use time. See section~\ref{ssec:command:usage:newsubmainidxcmd}
+   for examples and further description of its functionality. Default for
    \code{<index cs>} is \cmd{index}.
 \end{beschreibung}
 
-The commands defined this way are robust but their formatting is not placed in
-a group. Keep this in mind when you use \cmd*{bfseries} or something in a definition.
+The commands \cmd*{cmd} defined this way are robust but their formatting argument
+is not placed in a group. Keep this in mind when you use \cmd*{bfseries} or
+something in a definition.
 
-\subsection{Command Usage}\secidx[Command Usage]{Usage}
-\cmd{newidxcmd} will define a new command with the following syntax:
+Of course these commands cannot cover all possible use cases for index entries
+but that is not the intention of this package, anyway.
+
+\subsection{Command Usage}\label{ssec:command:usage}\secidx[Command Usage]{Usage}
+\subsubsection{\cmd*{newidxcmd}}\label{ssec:command:usage:newidxcmd}
+The command \cmd{newidxcmd}{\cmd*{cmd}}\ma{<formatting specs>} will define a new
+command \cmd*{cmd} with the following syntax:
 \begin{beschreibung}
  \Befehl{cmd}*{<text>}\newline
    format \code{<text>} according to specifications, no index entry.
@@ -199,14 +218,16 @@ a group. Keep this in mind when you use \cmd*{bfseries} or something in a defini
  \Befehl{cmd}[<srt idx>]{<text>}\newline
    format \code{<text>} according to specifications, add formatted index entry,
    sorted according to \code{<srt idx>}.
+ \Befehl{cmdidx}[<srt idx>]{<text>}\newline
+   add formatted index entry, sorted according to \code{<srt idx>}.
 \end{beschreibung}
 
 Let's see an example:
 \begin{beispiel}
- % preamble:
- % \newidxcmd\acr{\textsc{#1}}
- % \newidxcmd[{\index[examples]}]\environ{\texttt{#1}}[ (Environment)]
- % \newidxcmd\name{\textsf{#1}}
+ % in the preamble, probably:
+ % \newidxcmd{\acr}{\textsc{#1}}
+ % \newidxcmd[{\index[examples]}]{\environ}{\texttt{#1}}[ (Environment)]
+ % \newidxcmd{\name}{\textsf{#1}}
  \acr{cd}, \acr{id}
  
  \environ{center}, \environ{flushleft}
@@ -216,8 +237,12 @@ Let's see an example:
 You will find these examples in the index or the examples index, respectively.
 The second set of examples shows the purpose of the first optional argument: if
 you have several indexes --~like this documentation has for demonstration
-purposes~-- you might need to specify the index command used. This document uses
-\paket{imakeidx}~\cite{pkg:imakeidx} for this purpose.
+purposes~-- you might need to specify the index command used\footnote{This
+document uses \paket*{imakeidx}~\cite{pkg:imakeidx} for this purpose.}. If you
+want to prove if the example worked: \name*{Albert Einstein} should not be
+found in the index and \name*{Werner Heisenberg} should be sorted under
+\emph{Heisenberg}. Both \environ*{center} and \environ*{flushleft} ahould be
+found in the examples index.
 
 Now let's disect the example a bit. The uses of \cmd*{acr}{cd},
 \cmd*{name}*{Albert Einstein} and \cmd*{environ}{center} will essentially expand
@@ -231,43 +256,49 @@ to
  \texttt{center}\index[examples]{center@\texttt{center} (Environment)}
 \end{beispiel}
 
-\cmd{newsubmainidxcmd} will define a new command with the following syntax:
-\begin{beschreibung}
- \Befehl{cmd}*{<text>}\newline
-   format \code{<text>} according to specifications, no index entry.
- \Befehl{cmd}{<text>}\ma{<main entry>}\newline
-   format \code{<text>} according to specifications, add formatted index entry,
-   sorted according to \code{<text>}.
- \Befehl{cmd}[<srt idx>]{<text>}\ma{<main entry>}\newline
-   format \code{<text>} according to specifications, add formatted index entry,
-   sorted according to \code{<srt idx>}.
-\end{beschreibung}
-
-\begin{beispiel}
- % preamble
- % \newsubmainidxcmd\file{\textsf{#1}}
- \file{article}{classes} is a standard \LaTeX{} class.
- \file{scrartcl}{KOMA-Script@\KOMAScript} is part of the \KOMAScript{} bundle.
- \file*{test} is a dummy.
-\end{beispiel}
-
-\cmd{newsubidxcmd} will define a new command with the same syntax as \cmd{newidxcmd}
-does. However, \cmd{newsubidxcmd} has an additional argument that specifies the
-main entry this group of sub entries belongs to. In the unstarred variant this
-argument can be some arbitrary main entry. In the starred variant it demands
-a command plus argument defined by \cmd{newidxcmd} as argument.
+\subsubsection{\cmd*{newsubidxcmd}}\label{ssec:command:usage:newsubidxcmd}
+The command \cmd{newsubidxcmd}*{\cmd*{cmd}}\ma{<main entry>}\ma{<form.\@ specs>}
+will define a new command \cmd*{cmd} with the same syntax as \cmd{newidxcmd} does.
+However, \cmd{newsubidxcmd} has an additional argument that specifies the main
+index entry this group of sub entries belongs to. For the unstarred variant this
+argument can be some arbitrary main entry. For the starred variant it demands a
+command plus argument defined by \cmd{newidxcmd} as argument.
 
 \begin{beispiel}
  % preamble:
- % \newsubidxcmd\test{Test}{\textcolor{red}{#1}}
- % \newsubidxcmd*\hsnbg{\name[Heisenberg]{Werner Heisenberg}}{#1}
+ % \newsubidxcmd{\test}{Test}{\textcolor{red}{#1}}
+ % \newsubidxcmd*{\hsnbg}{\name[Heisenberg]{Werner Heisenberg}}{#1}
  \name[Heisenberg]{Werner Heisenberg} was born in \hsnbg{W\"urzburg
  (Germany)}. He worked as a professor in \hsnbg{Leipzig (Germany)}.
  And this is a \test{test}.
 \end{beispiel}
 
-Of course these commands cannot cover all possible use cases but that is not the
-intention of this package, anyway.
+\subsubsection{\cmd*{newsubmainidxcmd}}\label{ssec:command:usage:newsubmainidxcmd}
+The command \cmd{newsubmainidxcmd}{\cmd*{cmd}}\ma{<form.\@ specs>} will define a
+new command \cmd*{cmd} similar to \cmd{newsubidxcmd} but where the main index
+entry is specified for every use case in the running text. \cmd*{cmd} will have
+the following syntax:
+\begin{beschreibung}
+ \Befehl{cmd}*{<text>}\newline
+   format \code{<text>} according to specifications, no index entry.
+ \Befehl{cmd}{<text>}\ma{<main entry>}\newline
+   format \code{<text>} according to specifications, add formatted index sub-entry
+   to the main index entry \code{<main entry>}, sorted according to \code{<text>}.
+ \Befehl{cmd}[<srt idx>]{<text>}\ma{<main entry>}\newline
+   format \code{<text>} according to specifications, add formatted index sub-entry
+   to the main index entry \code{<main entry>}, sorted according to \code{<srt idx>}.
+ \Befehl{cmdidx}[<srt idx>]{<text>}\ma{<main entry>}\newline
+   add formatted index sub-entry to the main index entry \code{<main entry>},
+   sorted according to \code{<srt idx>}.
+\end{beschreibung}
+
+\begin{beispiel}
+ % in the preamble, probably:
+ % \newsubmainidxcmd{\file}{\textsf{#1}}
+ \file{article}{classes} is a standard \LaTeX{} class.
+ \file{scrartcl}{KOMA-Script@\KOMAScript} is part of the \KOMAScript{} bundle.
+ \file*{test} is a dummy.
+\end{beispiel}
 
 \subsection{Options}\secidx[Options]{Usage}
 \idxcmds has these option:
