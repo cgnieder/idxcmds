@@ -200,7 +200,9 @@ useful for others, and here we are.
 
 The commands \cmd*{cmd} defined this way are robust but their formatting argument
 is not placed in a group. Keep this in mind when you use \cmd*{bfseries} or
-something in a definition.
+something in a definition. \cmd*{cmd} will be defined using \paket{etoolbox}'
+\cmd{newrobustcmd} which means an error will be thrown if \cmd*{cmd} is already
+defined.
 
 Of course these commands cannot cover all possible use cases for index entries
 but that is not the intention of this package, anyway.
@@ -268,7 +270,7 @@ command plus argument defined by \cmd{newidxcmd} as argument.
  % preamble:
  % \newsubidxcmd{\test}{Test}{\textcolor{red}{#1}}
  % \newsubidxcmd*{\hsnbg}{\name[Heisenberg]{Werner Heisenberg}}{#1}
- \name[Heisenberg]{Werner Heisenberg} was born in \hsnbg{W\"urzburg
+ \name[Heisenberg]{Werner Heisenberg} was born in \hsnbg[Wuerzburg]{W\"urzburg
  (Germany)}. He worked as a professor in \hsnbg{Leipzig (Germany)}.
  And this is a \test{test}.
 \end{beispiel}
